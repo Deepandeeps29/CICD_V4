@@ -6,14 +6,14 @@ pipeline {
         stage('Install Requirements') {
             steps {
                 echo '📦 Installing Python dependencies...'
-                sh 'pip install -r requirements.txt'
+                bat 'pip install -r requirements.txt'
             }
         }
 
         stage('Run UI Tests') {
             steps {
                 echo '🧪 Running Selenium Pytest UI tests...'
-                sh 'pytest --html=report.html'
+                bat 'pytest --html=report.html'
             }
         }
 
@@ -33,10 +33,11 @@ pipeline {
         stage('CD: Deploy to Server') {
             steps {
                 echo '🚀 Deploying to remote Apache server...'
-                sh '''
-                    scp -o StrictHostKeyChecking=no -r * user@192.168.1.10:/var/www/html
-                    ssh user@192.168.1.10 "sudo systemctl restart apache2"
+                bat '''
+                    pscp -r * user@192.168.1.10:/var/www/html
+                    plink user@192.168.1.10 "sudo systemctl restart apache2"
                 '''
+                // Make sure `pscp` and `plink` are installed (from PuTTY) and added to PATH
             }
         }
     }
