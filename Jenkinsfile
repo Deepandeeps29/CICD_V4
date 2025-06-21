@@ -1,27 +1,29 @@
 pipeline {
     agent any
 
+    environment {
+        // Define any environment variables here (if needed)
+    }
+
     stages {
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/Deepandeeps29/CICD_V4.git'
-            }
-        }
 
         stage('Install Requirements') {
             steps {
+                echo '📦 Installing Python dependencies...'
                 sh 'pip install -r requirements.txt'
             }
         }
 
         stage('Run UI Tests') {
             steps {
+                echo '🧪 Running Selenium Pytest UI tests...'
                 sh 'pytest --html=report.html'
             }
         }
 
         stage('Publish Report') {
             steps {
+                echo '📤 Publishing HTML Test Report...'
                 publishHTML(target: [
                     reportName: 'Test Report',
                     reportDir: '.',
@@ -34,12 +36,21 @@ pipeline {
 
         stage('CD: Deploy to Server') {
             steps {
-                // Send files to server and restart Apache/Nginx
+                echo '🚀 Deploying to remote Apache server...'
                 sh '''
-                    scp -o StrictHostKeyChecking=no -r * user@192.168.1.10:/var/www/html/
+                    scp -o StrictHostKeyChecking=no -r * user@192.168.1.10:/var/www/html
                     ssh user@192.168.1.10 "sudo systemctl restart apache2"
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ CI/CD pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ CI/CD pipeline failed. Check logs above.'
         }
     }
 }
