@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/Deepandeeps29/CICD_V4.git'
+            }
+        }
 
         stage('Install Requirements') {
             steps {
@@ -29,8 +34,9 @@ pipeline {
 
         stage('CD: Deploy to Server') {
             steps {
+                // Send files to server and restart Apache/Nginx
                 sh '''
-                    scp -o StrictHostKeyChecking=no -r * user@192.168.1.10:/var/www/html
+                    scp -o StrictHostKeyChecking=no -r * user@192.168.1.10:/var/www/html/
                     ssh user@192.168.1.10 "sudo systemctl restart apache2"
                 '''
             }
