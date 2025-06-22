@@ -56,30 +56,27 @@ pipeline {
     }
 
     post {
-        success {
-            echo '✅ CI/CD pipeline completed successfully!'
+    success {
+        echo '✅ CI/CD pipeline completed successfully! Sending email report...'
 
-            // 📧 Send email with test report
-            emailext (
-                subject: "✅ UI Test Report - Build #${env.BUILD_NUMBER}",
-                body: """
-                    Hello Team,<br><br>
-                    The UI automation test pipeline has completed successfully.<br>
-                    <b>Project:</b> ${env.JOB_NAME}<br>
-                    <b>Build Number:</b> ${env.BUILD_NUMBER}<br>
-                    <b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a><br><br>
-                    Please find the attached report for more details.<br><br>
-                    Regards,<br>CI/CD Bot
-                """,
-                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'deepanvinayagam1411@gmail.com',
-                attachLog: false,
-                attachmentsPattern: 'report.html',
-                mimeType: 'text/html'
-            )
-        }
-        failure {
-            echo '❌ CI/CD pipeline failed. Check logs above.'
-        }
+        emailext (
+            subject: "✅ UI Test Report - Build #${env.BUILD_NUMBER}",
+            body: """
+                Hello Team,<br><br>
+                The UI automation test pipeline has completed successfully.<br>
+                <b>Project:</b> ${env.JOB_NAME}<br>
+                <b>Build Number:</b> ${env.BUILD_NUMBER}<br>
+                <b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a><br><br>
+                Please find the attached report for more details.<br><br>
+                Regards,<br>CI/CD Bot
+            """,
+            recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+            to: 'deepanvinayagam1411@gmail.com',
+            attachLog: false,
+            attachmentsPattern: 'report.html',
+            mimeType: 'text/html'
+        )
+
+        echo '📧 Email sent to deepanvinayagam1411@gmail.com'
     }
-}
+
