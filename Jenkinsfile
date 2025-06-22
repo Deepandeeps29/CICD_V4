@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        DEPLOY_SERVER = '192.168.1.10'
+        DEPLOY_USER = 'user'
+        DEPLOY_PATH = '/var/www/html'
+    }
+
     stages {
 
         stage('Install Requirements') {
@@ -33,11 +39,18 @@ pipeline {
         stage('CD: Deploy to Server') {
             steps {
                 echo '🚀 Deploying to remote Apache server...'
-                bat '''
-                    pscp -r * user@192.168.1.10:/var/www/html
-                    plink user@192.168.1.10 "sudo systemctl restart apache2"
-                '''
-                // Make sure `pscp` and `plink` are installed (from PuTTY) and added to PATH
+
+                timeout(time: 2, unit: 'MINUTES') {
+                    sshagent(credentials: ['deploy-key']) {
+                        bat """
+                            echo Transferring HTML report to server...
+                            scp -o StrictHostKeyChecking=no report.html %DEPLOY_USER%@%DEPLOY_SERVER%:%DEPLOY_PATH%
+
+                            echo Restarting Apache server remotely...
+                            ssh -o StrictHostKeyChecking=no %DEPLOY_USER%@%DEPLOY_SERVER% "sudo systemctl restart apache2"
+                        """
+                    }
+                }
             }
         }
     }
